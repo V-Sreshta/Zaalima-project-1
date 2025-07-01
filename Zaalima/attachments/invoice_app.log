@@ -1,0 +1,16 @@
+2025-06-28 20:13:13,030 - INFO - Application started.
+2025-06-28 20:25:43,019 - WARNING - Export attempted with no data.
+2025-06-28 20:25:52,938 - WARNING - Export attempted with no data.
+2025-06-28 20:26:05,721 - WARNING - Export attempted with no data.
+2025-06-28 20:26:12,380 - WARNING - Export attempted with no data.
+2025-06-28 20:27:27,846 - INFO - Starting email processing in a background thread.
+2025-06-28 20:27:27,886 - INFO - Connecting to imap.gmail.com as neelamharshitha01@gmail.com.
+2025-06-28 20:27:30,080 - INFO - Logged in successfully.
+2025-06-28 20:27:31,032 - INFO - Found 1 email(s) with subject 'invoice'.
+2025-06-28 20:27:31,812 - INFO - Processing email: Invoice
+2025-06-28 20:27:32,364 - INFO - Disconnected from email server.
+2025-06-28 20:27:32,364 - INFO - Processing all PDFs in the attachments folder.
+2025-06-28 20:27:32,366 - INFO - Reading PDF: dummyinvoice.pdf
+2025-06-28 20:27:32,367 - INFO - Extracting text from PDF: attachments\dummyinvoice.pdf
+2025-06-28 20:27:32,418 - INFO - Extracted data: {'Bill To': 'John Doe', 'Date': '2025-06-18', 'Invoice': 'INV-1001'}
+2025-06-28 20:27:32,418 - INFO - Displaying data in the UI table.
