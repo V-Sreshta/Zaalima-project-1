@@ -1,0 +1,174 @@
+import json
+import os
+
+DATA_FILE = "employees.txt"
+
+# ------------------ Classes ------------------
+
+class Employee:
+    def __init__(self, emp_id, name, department, salary):
+        self.emp_id = emp_id
+        self.name = name
+        self.department = department
+        try:
+            self.salary = float(salary)
+        except ValueError:
+            raise ValueError("Invalid salary. Please enter a valid number.")
+
+    def yearly_salary(self):
+        return self.salary * 12
+
+    def display(self):
+        return (
+            f"[Employee] ID: {self.emp_id} | Name: {self.name} | "
+            f"Dept: {self.department} | Monthly Salary: ₹{self.salary:.2f} | "
+            f"Yearly Salary: ₹{self.yearly_salary():.2f}"
+        )
+
+    def to_dict(self):
+        return {
+            "type": "Employee",
+            "emp_id": self.emp_id,
+            "name": self.name,
+            "department": self.department,
+            "salary": self.salary
+        }
+
+    @staticmethod
+    def from_dict(data):
+        return Employee(
+            data["emp_id"],
+            data["name"],
+            data["department"],
+            data["salary"]
+        )
+
+class Manager(Employee):
+    def __init__(self, emp_id, name, department, salary, team_size):
+        super().__init__(emp_id, name, department, salary)
+        self.team_size = int(team_size)
+
+    def bonus(self):
+        return 0.10 * self.yearly_salary() if self.team_size > 5 else 0.0
+
+    def display(self):
+        return (
+            f"[Manager] ID: {self.emp_id} | Name: {self.name} | "
+            f"Dept: {self.department} | Monthly Salary: ₹{self.salary:.2f} | "
+            f"Team Size: {self.team_size} | Bonus: ₹{self.bonus():.2f}"
+        )
+
+    def to_dict(self):
+        data = super().to_dict()
+        data["type"] = "Manager"
+        data["team_size"] = self.team_size
+        return data
+
+    @staticmethod
+    def from_dict(data):
+        return Manager(
+            data["emp_id"],
+            data["name"],
+            data["department"],
+            data["salary"],
+            data["team_size"]
+        )
+
+# ------------------ File Operations ------------------
+
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return {}
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+            employees = {}
+            for record in raw:
+                if record["type"] == "Manager":
+                    emp = Manager.from_dict(record)
+                else:
+                    emp = Employee.from_dict(record)
+                employees[emp.emp_id] = emp
+            return employees
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"[ERROR] Failed to load data: {e}")
+        return {}
+
+def save_data(employees):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump([e.to_dict() for e in employees.values()], f, indent=2)
+
+# ------------------ Core Features ------------------
+
+def add_employee(employees):
+    emp_id = input("Enter Employee ID: ").strip()
+    if emp_id in employees:
+        print("Employee with this ID already exists.")
+        return
+
+    name = input("Enter Name: ").strip()
+    dept = input("Enter Department: ").strip()
+    salary = input("Enter Monthly Salary: ").strip()
+
+    is_manager = input("Is this a manager? (y/n): ").strip().lower().startswith("y")
+
+    try:
+        if is_manager:
+            team_size = input("Enter Team Size: ").strip()
+            emp = Manager(emp_id, name, dept, salary, team_size)
+        else:
+            emp = Employee(emp_id, name, dept, salary)
+
+        employees[emp_id] = emp
+        print("✅ Employee added successfully.")
+    except ValueError as ve:
+        print(f"[ERROR] {ve}")
+
+def search_employee(employees):
+    emp_id = input("Enter Employee ID to search: ").strip()
+    try:
+        emp = employees[emp_id]
+        print(emp.display())
+    except KeyError:
+        print("[ERROR] Employee not found.")
+
+def summary_report(employees):
+    if not employees:
+        print("No employees to show.")
+        return
+
+    sorted_emps = sorted(employees.values(), key=lambda e: e.salary, reverse=True)
+    print("\n------ Summary Report (Sorted by Salary Descending) ------")
+    for emp in sorted_emps:
+        print(emp.display())
+    print("----------------------------------------------------------\n")
+
+# ------------------ Main Program ------------------
+
+def main():
+    employees = load_data()
+
+    while True:
+        print("\n======= Employee Management System =======")
+        print("1. Add Employee / Manager")
+        print("2. Search Employee by ID")
+        print("3. Display Summary Report")
+        print("4. Save and Exit")
+
+        choice = input("Choose an option (1-4): ").strip()
+
+        if choice == "1":
+            add_employee(employees)
+        elif choice == "2":
+            search_employee(employees)
+        elif choice == "3":
+            summary_report(employees)
+        elif choice == "4":
+            save_data(employees)
+            print("✅ Data saved successfully. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please enter 1–4.")
+
+if __name__ == "__main__":
+    main()
